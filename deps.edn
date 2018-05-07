@@ -2,5 +2,7 @@
         org.clojure/clojurescript {:mvn/version "1.10.238"}}
  :aliases {
    :test {
-     :extra-deps {olical/cljs-test-runner {:mvn/version "0.1.1"}}
+     :extra-deps {
+       olical/cljs-test-runner {:mvn/version "1.0.0"}
+       tortue/spy {:mvn/version "1.0.0"}}
      :main-opts ["-m" "cljs-test-runner.main"]}}}
