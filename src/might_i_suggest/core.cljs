@@ -5,6 +5,7 @@
   (let [parent (.-parentNode text-box)
         box (.createElement (.-ownerDocument text-box) "select")]
     (set! (.-id box) "suggestion-box")
+    (.setAttribute box "size" 5)
     (.appendChild parent box)))
 
 (defn- do-search [find-fn evt]
