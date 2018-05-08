@@ -49,4 +49,4 @@
       (with-redefs [find-entry/build-finder finder-spy]
         (core/attach text-box [["test /a/b"]])
         (set-value text-box "abc")
-        (is (not (nil? (.getElementById document "box"))))))))
+        (is (not (nil? (.getElementById document "suggestion-box"))))))))

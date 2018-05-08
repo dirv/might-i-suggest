@@ -4,7 +4,7 @@
 (defn- show-results-box [text-box]
   (let [parent (.-parentNode text-box)
         box (.createElement (.-ownerDocument text-box) "select")]
-    (set! (.-id box) "box")
+    (set! (.-id box) "suggestion-box")
     (.appendChild parent box)))
 
 (defn- do-search [find-fn evt]
