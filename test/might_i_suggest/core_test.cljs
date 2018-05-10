@@ -61,4 +61,16 @@
       (with-redefs [find-entry/build-finder finder-spy]
         (core/attach text-box [["test /a/b"]])
         (set-value text-box "abc")
-        (is (= "5" (.getAttribute (suggestion-box text-box) "size")))))))
+        (is (= "5" (.getAttribute (suggestion-box text-box) "size"))))))
+  (testing "suggestion box lists each page title with url value"
+    (let [text-box (build-text-box)
+          spy (spy/stub [["title 1" "/a/b"]
+                         ["title 2" "/c/d"]])
+          finder-spy (spy/stub spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (core/attach text-box [["title 1" "/a/b/"]
+                               ["title 2" "/c/d"]])
+        (set-value text-box "title")
+        (is (= 2 (.-length (.-children (suggestion-box text-box)))))
+        (is (= "/a/b" (.-value (.-firstChild (suggestion-box text-box)))))
+        (is (= "title 1" (.-text (.-firstChild (suggestion-box text-box)))))))))
