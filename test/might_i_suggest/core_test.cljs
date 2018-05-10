@@ -73,4 +73,12 @@
         (set-value text-box "title")
         (is (= 2 (.-length (.-children (suggestion-box text-box)))))
         (is (= "/a/b" (.-value (.-firstChild (suggestion-box text-box)))))
-        (is (= "title 1" (.-text (.-firstChild (suggestion-box text-box)))))))))
+        (is (= "title 1" (.-text (.-firstChild (suggestion-box text-box))))))))
+  (testing "only show a maximum of 5 suggestions"
+    (let [text-box (build-text-box)
+          spy (spy/stub (repeat 6 ["title 1" "/a/b"]))
+          finder-spy (spy/stub spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (core/attach text-box [])
+        (set-value text-box "title")
+        (is (= 5 (.-length (.-children (suggestion-box text-box)))))))))

@@ -1,6 +1,8 @@
 (ns might-i-suggest.core
   (:require [might-i-suggest.find-entry :as find-entry]))
 
+(def max-suggestions 5)
+
 (defn- create-select-option [[text value] select-element]
   (let [option-element (.createElement (.-ownerDocument select-element) "option")]
     (set! (.-value option-element) value)
@@ -11,8 +13,8 @@
   (let [parent (.-parentNode text-box)
         box (.createElement (.-ownerDocument text-box) "select")]
     (set! (.-id box) "suggestion-box")
-    (.setAttribute box "size" 5)
-    (doall (map #(create-select-option % box) results))
+    (.setAttribute box "size" max-suggestions)
+    (doall (take max-suggestions (map #(create-select-option % box) results)))
     (.appendChild parent box)))
 
 (defn- do-search [find-fn evt]
