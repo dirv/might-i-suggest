@@ -24,6 +24,12 @@
     (.initEvent evt "change" false true)
     (.dispatchEvent input-element evt)))
 
+(defn- click [input-element]
+  (let [document (.-ownerDocument input-element)
+        evt (.createEvent document "HTMLEvents")]
+    (.initEvent evt "click" false true)
+    (.dispatchEvent input-element evt)))
+
 (defn- suggestion-box [text-box]
   (-> text-box
       (.-ownerDocument)
@@ -34,7 +40,7 @@
     (let [text-box (build-text-box)
           spy (spy/stub :find-fn)]
       (with-redefs [find-entry/build-finder spy]
-        (core/attach text-box [["test" "/a/b"]])
+        (core/attach text-box [["test" "/a/b"]] nil)
         (is (spy/called? spy))
         (is (spy/called-with? spy [["test" "/a/b"]])))))
   (testing "calls finder function when text is input"
@@ -42,7 +48,7 @@
           spy (spy/stub [])
           finder-spy (spy/stub spy)]
       (with-redefs [find-entry/build-finder finder-spy]
-        (core/attach text-box [["test" "/a/b"]])
+        (core/attach text-box [["test" "/a/b"]] nil)
         (set-value text-box "abc")
         (is (spy/called? spy))
         (is (spy/called-with? spy "abc")))))
@@ -51,7 +57,7 @@
           spy (spy/stub [["title" "/a/b"]])
           finder-spy (spy/stub spy)]
       (with-redefs [find-entry/build-finder finder-spy]
-        (core/attach text-box [["test /a/b"]])
+        (core/attach text-box [["test /a/b"]] nil)
         (set-value text-box "abc")
         (is (not (nil? (suggestion-box text-box)))))))
   (testing "suggestion box has fixed size of 5"
@@ -59,7 +65,7 @@
           spy (spy/stub [["title" "/a/b"]])
           finder-spy (spy/stub spy)]
       (with-redefs [find-entry/build-finder finder-spy]
-        (core/attach text-box [["test /a/b"]])
+        (core/attach text-box [["test /a/b"]] nil)
         (set-value text-box "abc")
         (is (= "5" (.getAttribute (suggestion-box text-box) "size"))))))
   (testing "suggestion box lists each page title with url value"
@@ -68,8 +74,8 @@
                          ["title 2" "/c/d"]])
           finder-spy (spy/stub spy)]
       (with-redefs [find-entry/build-finder finder-spy]
-        (core/attach text-box [["title 1" "/a/b/"]
-                               ["title 2" "/c/d"]])
+        (core/attach text-box [["title 1" "/a/b"]
+                               ["title 2" "/c/d"]] nil)
         (set-value text-box "title")
         (is (= 2 (.-length (.-children (suggestion-box text-box)))))
         (is (= "/a/b" (.-value (.-firstChild (suggestion-box text-box)))))
@@ -79,6 +85,17 @@
           spy (spy/stub (repeat 6 ["title 1" "/a/b"]))
           finder-spy (spy/stub spy)]
       (with-redefs [find-entry/build-finder finder-spy]
-        (core/attach text-box [])
+        (core/attach text-box [] nil)
         (set-value text-box "title")
-        (is (= 5 (.-length (.-children (suggestion-box text-box)))))))))
+        (is (= 5 (.-length (.-children (suggestion-box text-box))))))))
+  (testing "calls the on-select-fn when a selection is chosen"
+    (let [text-box (build-text-box)
+          spy (spy/stub [["title 1" "/a/b"]])
+          finder-spy (spy/stub spy)
+          click-spy (spy/spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (core/attach text-box [["title 1" "/a/b"]] click-spy)
+        (set-value text-box "title")
+        (let [entry (.-firstChild (suggestion-box text-box))]
+          (click entry)
+          (is (spy/called-with? click-spy "/a/b")))))))
