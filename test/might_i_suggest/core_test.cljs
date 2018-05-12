@@ -9,6 +9,13 @@
 
 (defn- create-dom [] (jsdom/JSDOM.))
 
+(defn- multi-call-stub [& args]
+  (let [remaining-args (atom args)]
+    (spy/mock (fn []
+                (let [this-arg (first @remaining-args)]
+                  (swap! remaining-args rest)
+                  this-arg)))))
+
 (defn- build-text-box []
   (let [document (-> (create-dom) (.-window) (.-document))
         form (.createElement document "form")
@@ -98,4 +105,14 @@
         (set-value text-box "title")
         (let [entry (.-firstChild (suggestion-box text-box))]
           (click entry)
-          (is (spy/called-with? click-spy "/a/b")))))))
+          (is (spy/called-with? click-spy "/a/b"))))))
+  (testing "closes the selection box if the search returns nothing"
+    (let [text-box (build-text-box)
+          spy (multi-call-stub [["title 1" "/a/b"]] [])
+          finder-spy (spy/stub spy)
+          click-spy (spy/spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (core/attach text-box [["title 1" "/a/b"]] click-spy)
+        (set-value text-box "title")
+        (set-value text-box "unknown")
+        (is (nil? (suggestion-box text-box)))))))

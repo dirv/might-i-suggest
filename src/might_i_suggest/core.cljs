@@ -18,9 +18,16 @@
     (doall (take max-suggestions (map #(create-select-option % box on-select-fn) results)))
     (.appendChild parent box)))
 
+(defn- hide-results-box [text-box]
+  (let [parent (.-parentNode text-box)]
+    (when-let [select-box (.querySelector parent "select")]
+      (.removeChild parent select-box))))
+
 (defn- do-search [find-fn on-select-fn evt]
-  (if-let [results (find-fn (-> evt (.-target) (.-value)))]
-    (show-results-box (.-target evt) results on-select-fn)))
+  (let [results (find-fn (-> evt (.-target) (.-value)))]
+    (if (not= [] results)
+      (show-results-box (.-target evt) results on-select-fn)
+      (hide-results-box (.-target evt)))))
 
 (defn attach [text-box data on-select-fn]
   (let [find-fn (find-entry/build-finder data)]
