@@ -109,10 +109,17 @@
   (testing "closes the selection box if the search returns nothing"
     (let [text-box (build-text-box)
           spy (multi-call-stub [["title 1" "/a/b"]] [])
-          finder-spy (spy/stub spy)
-          click-spy (spy/spy)]
+          finder-spy (spy/stub spy)]
       (with-redefs [find-entry/build-finder finder-spy]
-        (core/attach text-box [["title 1" "/a/b"]] click-spy)
+        (core/attach text-box [["title 1" "/a/b"]] nil)
         (set-value text-box "title")
         (set-value text-box "unknown")
+        (is (nil? (suggestion-box text-box))))))
+  (testing "never opens the selection box if there's no match"
+    (let [text-box (build-text-box)
+          spy (spy/stub [])
+          finder-spy (spy/stub spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (core/attach text-box [["title 1" "/a/b"]] nil)
+        (set-value text-box "title")
         (is (nil? (suggestion-box text-box)))))))
