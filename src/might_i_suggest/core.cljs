@@ -29,6 +29,22 @@
       (show-results-box (.-target evt) results on-select-fn)
       (hide-results-box (.-target evt)))))
 
-(defn attach [text-box data on-select-fn]
+(defn- show-search-results [results-box results on-select-fn]
+  (let [[title url] (first results)
+        owner (.-ownerDocument results-box)
+        list-item (.createElement owner "li")
+        link (.createElement owner "a")]
+    (set! (.-href link) url)
+    (.appendChild link (.createTextNode owner title))
+    (.appendChild list-item link)
+    (.appendChild results-box list-item)))
+
+(defn- do-results [find-fn results-box on-select-fn evt]
+  (let [results (find-fn (-> evt (.-target) (.-value)))]
+    (show-search-results results-box results on-select-fn)))
+
+(defn attach [text-box search-button results-box data on-select-fn]
   (let [find-fn (find-entry/build-finder data)]
-    (.addEventListener text-box "change" (partial do-search find-fn on-select-fn))))
+    (doall
+      (.addEventListener search-button "click" (partial do-results find-fn results-box on-select-fn))
+      (.addEventListener text-box "change" (partial do-search find-fn on-select-fn)))))
