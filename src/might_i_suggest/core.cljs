@@ -29,15 +29,19 @@
       (show-results-box (.-target evt) results on-select-fn)
       (hide-results-box (.-target evt)))))
 
-(defn- show-search-results [results-box results on-select-fn]
-  (let [[title url] (first results)
-        owner (.-ownerDocument results-box)
+(defn- add-search-result [results-box [title url] on-select-fn]
+  (let [owner (.-ownerDocument results-box)
         list-item (.createElement owner "li")
         link (.createElement owner "a")]
     (set! (.-href link) url)
     (.appendChild link (.createTextNode owner title))
     (.appendChild list-item link)
     (.appendChild results-box list-item)))
+
+(defn- show-search-results [results-box results on-select-fn]
+  (doall
+    (for [result results]
+      (add-search-result results-box result on-select-fn))))
 
 (defn- do-results [find-fn results-box on-select-fn evt]
   (let [results (find-fn (-> evt (.-target) (.-value)))]
