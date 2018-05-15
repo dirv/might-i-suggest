@@ -3,11 +3,11 @@
 
 (def max-suggestions 5)
 
-(defn- create-select-option [[text value] select-element on-select-fn]
+(defn- create-select-option [[title url] select-element on-select-fn]
   (let [option-element (.createElement (.-ownerDocument select-element) "option")]
-    (set! (.-value option-element) value)
-    (set! (.-text option-element) text)
-    (.addEventListener option-element "click" (fn [] (on-select-fn value)))
+    (set! (.-value option-element) url)
+    (set! (.-text option-element) title)
+    (.addEventListener option-element "click" (fn [] (on-select-fn url)))
     (.appendChild select-element option-element)))
 
 (defn- show-results-box [text-box results on-select-fn]
@@ -35,6 +35,7 @@
         link (.createElement owner "a")]
     (set! (.-href link) url)
     (.appendChild link (.createTextNode owner title))
+    (.addEventListener link "click" (fn [] (on-select-fn url)))
     (.appendChild list-item link)
     (.appendChild results-box list-item)))
 

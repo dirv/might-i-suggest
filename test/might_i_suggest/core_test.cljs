@@ -150,8 +150,7 @@
                 link (.-firstChild list-item)]
             (is (not (nil? link)))
             (is (= "A" (.-tagName link)))
-            (is (= "title 1" (.-textContent link)))
-            (is (= "/a/b" (.-href link))))))))
+            (is (= "title 1" (.-textContent link))))))))
   (testing "displays multiple search results"
     (let [spy (spy/stub [["title 1" "/a/b"] ["title 2" "/c/d"]])
           finder-spy (spy/stub spy)]
@@ -159,4 +158,15 @@
         (let [[text-box search-button results-box _] (create-and-attach)]
           (set-value text-box "title")
           (click search-button)
-          (is (= 2 (.-length (.-children results-box)))))))))
+          (is (= 2 (.-length (.-children results-box))))))))
+  (testing "call select fn when clicking search result"
+    (let [spy (spy/stub [["title 1" "/a/b"]])
+          finder-spy (spy/stub spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (let [[text-box search-button results-box click-spy] (create-and-attach)]
+          (set-value text-box "title")
+          (click search-button)
+          (let [list-item (.-firstChild results-box)
+                link (.-firstChild list-item)]
+            (click link)
+            (is (spy/called-with? click-spy "/a/b"))))))))
