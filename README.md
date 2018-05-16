@@ -26,3 +26,6 @@ A ClojureScript library to add autosuggest capability to a textbox, given a loca
     npm install
     clj -Atest
 
+# Building
+
+    clj -m cljs.main -c might-i-suggest.core

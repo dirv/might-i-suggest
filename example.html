@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <script src="//console.re/connector.js" data-channel="conciselycrafted" id="consolerescript"></script>
+  <script src="out/main.js" type="text/javascript"></script>
+    <style type="text/css">
+    <!--
+      body {
+        width: 700px;
+        margin: auto;
+      }
+      input {
+        display: inline;
+      }
+      #search-box {
+        width: 650px;
+      }
+      #search-button {
+        width:30px;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <input id="search-box" />
+    <input type="button" id="search-button" value="Go" />
+    <ol id="results-box" />
+  <script>
+  <!--
+    var searchBox = document.getElementById('search-box');
+    var searchButton = document.getElementById('search-button');
+    var resultsBox = document.getElementById('results-box');
+    var onSearch = function(result) {
+      console.re.log('Chose page: ' + result);
+    };
+    var data = [
+      [ "title 1", "/a/b"],
+      [ "title 2", "/c/d"],
+      [ "title 3", "/e/f"],
+      [ "title 4", "/g/h"],
+    ];
+    might_i_suggest.core.attach(searchBox, searchButton, resultsBox, data, onSearch);
+    -->
+  </script>
+  </body>
+</html>
