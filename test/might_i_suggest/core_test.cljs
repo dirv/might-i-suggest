@@ -169,4 +169,13 @@
           (let [list-item (.-firstChild results-box)
                 link (.-firstChild list-item)]
             (click link)
-            (is (spy/called-with? click-spy "/a/b"))))))))
+            (is (spy/called-with? click-spy "/a/b")))))))
+(testing "sends text box data to search function when searching"
+  (let [spy (spy/stub [["title 1" "/a/b"]])
+        finder-spy (spy/stub spy)]
+    (with-redefs [find-entry/build-finder finder-spy]
+      (let [[text-box search-button results-box click-spy] (create-and-attach)]
+          (set-value text-box "title")
+          (click search-button)
+          (is (= 2 (count (spy/calls spy))))
+          (is (= ["title"] (last (spy/calls spy)))))))))

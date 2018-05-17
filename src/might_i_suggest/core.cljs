@@ -33,7 +33,6 @@
   (let [owner (.-ownerDocument results-box)
         list-item (.createElement owner "li")
         link (.createElement owner "a")]
-    (set! (.-href link) url)
     (.appendChild link (.createTextNode owner title))
     (.addEventListener link "click" (fn [] (on-select-fn url)))
     (.appendChild list-item link)
@@ -44,12 +43,12 @@
     (for [result results]
       (add-search-result results-box result on-select-fn))))
 
-(defn- do-results [find-fn results-box on-select-fn evt]
-  (let [results (find-fn (-> evt (.-target) (.-value)))]
+(defn- do-results [find-fn results-box on-select-fn text-box]
+  (let [results (find-fn (.-value text-box))]
     (show-search-results results-box results on-select-fn)))
 
 (defn attach [text-box search-button results-box data on-select-fn]
   (let [find-fn (find-entry/build-finder data)]
     (doall
-      (.addEventListener search-button "click" (partial do-results find-fn results-box on-select-fn))
+      (.addEventListener search-button "click" (fn [] (do-results find-fn results-box on-select-fn text-box)))
       (.addEventListener text-box "change" (partial do-search find-fn on-select-fn)))))
