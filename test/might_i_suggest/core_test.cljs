@@ -39,6 +39,13 @@
     (.initEvent evt "click" false true)
     (.dispatchEvent input-element evt)))
 
+(defn- select [option-element]
+  (let [select-element (.-parentNode option-element)
+        document (.-ownerDocument option-element)
+        evt (.createEvent document "HTMLEvents")]
+    (.initEvent evt "change" false true)
+    (.dispatchEvent select-element evt)))
+
 (defn- set-value [input-element value]
   (set! (.-value input-element) value)
   (let [document (.-ownerDocument input-element)
@@ -113,7 +120,7 @@
       (with-redefs [find-entry/build-finder finder-spy]
         (let [[text-box _ _ click-spy] (create-and-attach)]
           (set-value text-box "title")
-          (click (.-firstChild (suggestion-box text-box)))
+          (select (.-firstChild (suggestion-box text-box)))
           (is (spy/called-with? click-spy "/a/b"))))))
   (testing "closes the selection box if the search returns nothing"
     (let [spy (multi-call-stub [["title 1" "/a/b"]] [])

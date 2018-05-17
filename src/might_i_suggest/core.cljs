@@ -7,7 +7,6 @@
   (let [option-element (.createElement (.-ownerDocument select-element) "option")]
     (set! (.-value option-element) url)
     (set! (.-text option-element) title)
-    (.addEventListener option-element "click" (fn [] (on-select-fn url)))
     (.appendChild select-element option-element)))
 
 (defn- show-results-box [text-box results on-select-fn]
@@ -16,6 +15,8 @@
     (set! (.-id box) "suggestion-box")
     (.setAttribute box "size" max-suggestions)
     (doall (take max-suggestions (map #(create-select-option % box on-select-fn) results)))
+    (.addEventListener box "change"
+                       (fn [] (on-select-fn (.-value box))))
     (.appendChild parent box)))
 
 (defn- hide-results-box [text-box]
