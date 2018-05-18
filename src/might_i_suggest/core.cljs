@@ -9,7 +9,7 @@
     (set! (.-text option-element) title)
     (.appendChild select-element option-element)))
 
-(defn- show-results-box [text-box results on-select-fn]
+(defn- show-suggestions-box [text-box results on-select-fn]
   (let [parent (.-parentNode text-box)
         box (.createElement (.-ownerDocument text-box) "select")]
     (set! (.-id box) "suggestion-box")
@@ -19,16 +19,16 @@
                        (fn [] (on-select-fn (.-value box))))
     (.appendChild parent box)))
 
-(defn- hide-results-box [text-box]
+(defn- hide-suggestions-box [text-box]
   (let [parent (.-parentNode text-box)]
     (when-let [select-box (.querySelector parent "select")]
       (.removeChild parent select-box))))
 
-(defn- do-search [find-fn on-select-fn evt]
+(defn- do-auto-search [find-fn on-select-fn evt]
   (let [results (find-fn (-> evt (.-target) (.-value)))]
     (if (not= [] results)
-      (show-results-box (.-target evt) results on-select-fn)
-      (hide-results-box (.-target evt)))))
+      (show-suggestions-box (.-target evt) results on-select-fn)
+      (hide-suggestions-box (.-target evt)))))
 
 (defn- add-search-result [results-box [title url] on-select-fn]
   (let [owner (.-ownerDocument results-box)
@@ -44,12 +44,12 @@
     (for [result results]
       (add-search-result results-box result on-select-fn))))
 
-(defn- do-results [find-fn results-box on-select-fn text-box]
+(defn- do-search [find-fn results-box on-select-fn text-box]
   (let [results (find-fn (.-value text-box))]
     (show-search-results results-box results on-select-fn)))
 
 (defn attach [text-box search-button results-box data on-select-fn]
   (let [find-fn (find-entry/build-finder data)]
     (doall
-      (.addEventListener search-button "click" (fn [] (do-results find-fn results-box on-select-fn text-box)))
-      (.addEventListener text-box "change" (partial do-search find-fn on-select-fn)))))
+      (.addEventListener search-button "click" (fn [] (do-search find-fn results-box on-select-fn text-box)))
+      (.addEventListener text-box "change" (partial do-auto-search find-fn on-select-fn)))))
