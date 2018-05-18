@@ -3,26 +3,27 @@
 
 (def max-suggestions 5)
 
-(defn- create-select-option [[title url] select-element on-select-fn]
-  (let [option-element (.createElement (.-ownerDocument select-element) "option")]
-    (set! (.-value option-element) url)
-    (set! (.-text option-element) title)
-    (.appendChild select-element option-element)))
+(defn- create-link [document title on-click-fn]
+  (let [link (.createElement document "li")]
+    (.appendChild link (.createTextNode document title))
+    (.addEventListener link "click" on-click-fn)
+    link))
+
+(defn- add-list-item [[title url] container on-select-fn]
+  (let [owner (.-ownerDocument container)
+        link (create-link owner title #(on-select-fn url))]
+    (.appendChild container link)))
 
 (defn- show-suggestions-box [text-box results on-select-fn]
   (let [parent (.-parentNode text-box)
-        box (.createElement (.-ownerDocument text-box) "select")]
+        box (.createElement (.-ownerDocument text-box) "ol")]
     (set! (.-id box) "suggestion-box")
-    (.setAttribute box "size" max-suggestions)
-    (doall (take max-suggestions (map #(create-select-option % box on-select-fn) results)))
-    (.addEventListener box "change"
-                       (fn [] (on-select-fn (.-value box))))
+    (doall (take max-suggestions (map #(add-list-item % box on-select-fn) results)))
     (.appendChild parent box)))
 
 (defn- hide-suggestions-box [text-box]
-  (let [parent (.-parentNode text-box)]
-    (when-let [select-box (.querySelector parent "select")]
-      (.removeChild parent select-box))))
+  (when-let [box (.getElementById (.-ownerDocument text-box) "suggestion-box")]
+    (.remove box)))
 
 (defn- do-auto-search [find-fn on-select-fn evt]
   (let [results (find-fn (-> evt (.-target) (.-value)))]
@@ -30,19 +31,10 @@
       (show-suggestions-box (.-target evt) results on-select-fn)
       (hide-suggestions-box (.-target evt)))))
 
-(defn- add-search-result [results-box [title url] on-select-fn]
-  (let [owner (.-ownerDocument results-box)
-        list-item (.createElement owner "li")
-        link (.createElement owner "a")]
-    (.appendChild link (.createTextNode owner title))
-    (.addEventListener link "click" (fn [] (on-select-fn url)))
-    (.appendChild list-item link)
-    (.appendChild results-box list-item)))
-
 (defn- show-search-results [results-box results on-select-fn]
   (doall
     (for [result results]
-      (add-search-result results-box result on-select-fn))))
+      (add-list-item result results-box on-select-fn))))
 
 (defn- do-search [find-fn results-box on-select-fn text-box]
   (let [results (find-fn (.-value text-box))]

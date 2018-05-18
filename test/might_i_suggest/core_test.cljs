@@ -39,13 +39,6 @@
     (.initEvent evt "click" false true)
     (.dispatchEvent input-element evt)))
 
-(defn- select [option-element]
-  (let [select-element (.-parentNode option-element)
-        document (.-ownerDocument option-element)
-        evt (.createEvent document "HTMLEvents")]
-    (.initEvent evt "change" false true)
-    (.dispatchEvent select-element evt)))
-
 (defn- set-value [input-element value]
   (set! (.-value input-element) value)
   (let [document (.-ownerDocument input-element)
@@ -91,13 +84,6 @@
         (let [[text-box & _] (create-and-attach)]
           (set-value text-box "abc")
           (is (not (nil? (suggestion-box text-box))))))))
-  (testing "suggestion box has fixed size of 5"
-    (let [spy (spy/stub [["title" "/a/b"]])
-          finder-spy (spy/stub spy)]
-      (with-redefs [find-entry/build-finder finder-spy]
-        (let [[text-box & _] (create-and-attach)]
-          (set-value text-box "abc")
-          (is (= "5" (.getAttribute (suggestion-box text-box) "size")))))))
   (testing "suggestion box lists each page title with url value"
     (let [spy (spy/stub standard-data)
           finder-spy (spy/stub spy)]
@@ -105,8 +91,15 @@
         (let [[text-box & _] (create-and-attach)]
           (set-value text-box "title")
           (is (= 2 (.-length (.-children (suggestion-box text-box)))))
-          (is (= "/a/b" (.-value (.-firstChild (suggestion-box text-box)))))
-          (is (= "title 1" (.-text (.-firstChild (suggestion-box text-box)))))))))
+          (is (= "title 1" (.-textContent (.-firstChild (suggestion-box text-box)))))))))
+  (testing "clicking a search result in suggestion box calls select spy"
+    (let [spy (spy/stub standard-data)
+          finder-spy (spy/stub spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (let [[text-box _ _ click-spy] (create-and-attach)]
+          (set-value text-box "title")
+          (click (.-firstChild (suggestion-box text-box)))
+          (is (spy/called-with? click-spy "/a/b"))))))
   (testing "only show a maximum of 5 suggestions"
     (let [spy (spy/stub (repeat 6 ["title 1" "/a/b"]))
           finder-spy (spy/stub spy)]
@@ -120,7 +113,7 @@
       (with-redefs [find-entry/build-finder finder-spy]
         (let [[text-box _ _ click-spy] (create-and-attach)]
           (set-value text-box "title")
-          (select (.-firstChild (suggestion-box text-box)))
+          (click (.-firstChild (suggestion-box text-box)))
           (is (spy/called-with? click-spy "/a/b"))))))
   (testing "closes the selection box if the search returns nothing"
     (let [spy (multi-call-stub [["title 1" "/a/b"]] [])
@@ -153,10 +146,7 @@
         (let [[text-box search-button results-box _] (create-and-attach)]
           (set-value text-box "title")
           (click search-button)
-          (let [list-item (.-firstChild results-box)
-                link (.-firstChild list-item)]
-            (is (not (nil? link)))
-            (is (= "A" (.-tagName link)))
+          (let [link (.-firstChild results-box)]
             (is (= "title 1" (.-textContent link))))))))
   (testing "displays multiple search results"
     (let [spy (spy/stub [["title 1" "/a/b"] ["title 2" "/c/d"]])
@@ -173,10 +163,8 @@
         (let [[text-box search-button results-box click-spy] (create-and-attach)]
           (set-value text-box "title")
           (click search-button)
-          (let [list-item (.-firstChild results-box)
-                link (.-firstChild list-item)]
-            (click link)
-            (is (spy/called-with? click-spy "/a/b")))))))
+          (click (.-firstChild results-box))
+          (is (spy/called-with? click-spy "/a/b"))))))
   (testing "sends text box data to search function when searching"
     (let [spy (spy/stub [["title 1" "/a/b"]])
           finder-spy (spy/stub spy)]
