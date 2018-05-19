@@ -27,7 +27,7 @@
 
 (defn- do-auto-search [find-fn on-select-fn evt]
   (let [results (find-fn (-> evt (.-target) (.-value)))]
-    (if (not= [] results)
+    (if (and results (not= [] results))
       (show-suggestions-box (.-target evt) results on-select-fn)
       (hide-suggestions-box (.-target evt)))))
 
@@ -44,4 +44,4 @@
   (let [find-fn (find-entry/build-finder data)]
     (doall
       (.addEventListener search-button "click" (fn [] (do-search find-fn results-box on-select-fn text-box)))
-      (.addEventListener text-box "change" (partial do-auto-search find-fn on-select-fn)))))
+      (.addEventListener text-box "keyup" (partial do-auto-search find-fn on-select-fn)))))
