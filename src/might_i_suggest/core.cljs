@@ -3,6 +3,15 @@
 
 (def max-suggestions 5)
 
+(defn- build-input-element [input-type container]
+  (let [input-element (.createElement (.-ownerDocument container) "input")]
+    (.setAttribute input-element "type" input-type)
+    (.appendChild container input-element)
+    input-element))
+
+(def build-text-box (partial build-input-element "text"))
+(def build-button (partial build-input-element "button"))
+
 (defn- create-link [document title on-click-fn]
   (let [link (.createElement document "li")]
     (.appendChild link (.createTextNode document title))
@@ -41,8 +50,10 @@
   (let [results (find-fn (.-value text-box))]
     (show-search-results results-box results on-select-fn)))
 
-(defn attach [text-box search-button results-box data on-select-fn]
-  (let [find-fn (find-entry/build-finder data)]
+(defn attach [container results-box data on-select-fn]
+  (let [text-box (build-text-box container)
+        search-button (build-button container)
+        find-fn (find-entry/build-finder data)]
     (doall
       (.addEventListener search-button "click" (fn [] (do-search find-fn results-box on-select-fn text-box)))
       (.addEventListener text-box "keyup" (partial do-auto-search find-fn on-select-fn)))))

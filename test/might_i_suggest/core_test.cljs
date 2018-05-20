@@ -21,19 +21,15 @@
 (defn- build-document []
   (-> (create-dom) (.-window) (.-document)))
 
-(defn- build-input-element [input-type document]
-  (let [input-element (.createElement document "input")]
-    (.setAttribute input-element "type" input-type)
-    (.appendChild (.-body document) input-element)
-    input-element))
+(defn- build-element [element-type document]
+  (let [element (.createElement document element-type)]
+    (.appendChild (.-body document) element)
+    element))
 
 (defn- build-ordered-list [document]
   (let [ordered-list (.createElement document "ol")]
     (.appendChild (.-body document) ordered-list)
     ordered-list))
-
-(def build-text-box (partial build-input-element "text"))
-(def build-button (partial build-input-element "button"))
 
 (defn- raise-event [element event-name]
   (let [document (.-ownerDocument element)
@@ -59,16 +55,21 @@
       (.-ownerDocument)
       (.getElementById "suggestion-box")))
 
+(defn- find-text-box [container]
+  (.querySelector container "input[type='text']"))
+
+(defn- find-search-button [container]
+  (.querySelector container "input[type='button']"))
+
 (def standard-data [["title 1" "/a/b"] ["title 2" "/c/d"]])
 
 (defn- create-and-attach []
   (let [document (build-document)
-        text-box (build-text-box document)
-        search-button (build-button document)
+        container (build-element "div" document)
         results-box (build-ordered-list document)
         click-spy (spy/spy)]
-    (core/attach text-box search-button results-box standard-data click-spy)
-    [text-box search-button results-box click-spy]))
+    (core/attach container results-box standard-data click-spy)
+    [(find-text-box container) (find-search-button container) results-box click-spy]))
 
 (deftest attach
   (testing "builds a finder when attaching"

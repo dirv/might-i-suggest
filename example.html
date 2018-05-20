@@ -21,13 +21,11 @@
     </style>
   </head>
   <body>
-    <input id="search-box" />
-    <input type="button" id="search-button" value="Go" />
+    <div id="search-control-container"/ >
     <ol id="results-box" />
   <script>
   <!--
-    var searchBox = document.getElementById('search-box');
-    var searchButton = document.getElementById('search-button');
+    var searchControlContainer = document.getElementById('search-control-container');
     var resultsBox = document.getElementById('results-box');
     var onSearch = function(result) {
       console.re.log('Chose page: ' + result);
@@ -38,7 +36,7 @@
       [ "title 3", "/e/f"],
       [ "title 4", "/g/h"],
     ];
-    might_i_suggest.core.attach(searchBox, searchButton, resultsBox, data, onSearch);
+    might_i_suggest.core.attach(searchControlContainer, resultsBox, data, onSearch);
     -->
   </script>
   </body>
