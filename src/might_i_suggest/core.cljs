@@ -14,16 +14,17 @@
         link (create-link owner title #(on-select-fn url))]
     (.appendChild container link)))
 
+(defn- hide-suggestions-box [text-box]
+  (when-let [box (.getElementById (.-ownerDocument text-box) "suggestion-box")]
+    (.remove box)))
+
 (defn- show-suggestions-box [text-box results on-select-fn]
+  (hide-suggestions-box text-box)
   (let [parent (.-parentNode text-box)
         box (.createElement (.-ownerDocument text-box) "ol")]
     (set! (.-id box) "suggestion-box")
     (doall (take max-suggestions (map #(add-list-item % box on-select-fn) results)))
     (.appendChild parent box)))
-
-(defn- hide-suggestions-box [text-box]
-  (when-let [box (.getElementById (.-ownerDocument text-box) "suggestion-box")]
-    (.remove box)))
 
 (defn- do-auto-search [find-fn on-select-fn evt]
   (let [results (find-fn (-> evt (.-target) (.-value)))]

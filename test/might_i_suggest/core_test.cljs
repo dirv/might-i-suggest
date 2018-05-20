@@ -181,4 +181,12 @@
           (enter-value text-box "title")
           (click search-button)
           (is (= 6 (count (spy/calls spy))))
-          (is (= ["title"] (last (spy/calls spy)))))))))
+          (is (= ["title"] (last (spy/calls spy))))))))
+  (testing "replaces suggestion box when searching twice"
+    (let [spy (spy/stub [["title 1" "/a/b"]])
+          finder-spy (spy/stub spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (let [[text-box search-button results-box click-spy] (create-and-attach)]
+          (enter-value text-box "title")
+          (is (= 1 (count (array-seq (.querySelectorAll (.-ownerDocument text-box) "#suggestion-box"))))))))))
+
