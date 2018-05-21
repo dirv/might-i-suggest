@@ -10,7 +10,11 @@
     input-element))
 
 (def build-text-box (partial build-input-element "text"))
-(def build-button (partial build-input-element "button"))
+
+(defn- build-button [container]
+  (let [button (build-input-element "button" container)]
+    (.setAttribute button "value" "Go")
+    button))
 
 (defn- create-link [document title on-click-fn]
   (let [link (.createElement document "li")]

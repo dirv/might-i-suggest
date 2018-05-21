@@ -189,5 +189,11 @@
       (with-redefs [find-entry/build-finder finder-spy]
         (let [[text-box search-button results-box click-spy] (create-and-attach)]
           (enter-value text-box "title")
-          (is (= 1 (count (array-seq (.querySelectorAll (.-ownerDocument text-box) "#suggestion-box"))))))))))
+          (is (= 1 (count (array-seq (.querySelectorAll (.-ownerDocument text-box) "#suggestion-box")))))))))
+  (testing "creates a search button with the text Go"
+    (let [spy (spy/stub [])
+          finder-spy (spy/stub spy)]
+      (with-redefs [find-entry/build-finder finder-spy]
+        (let [[text-box search-button results-box click-spy] (create-and-attach)]
+          (is (= "Go" (.-value search-button))))))))
 
